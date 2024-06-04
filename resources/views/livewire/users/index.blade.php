@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Livewire\Volt\Component;
 use Mary\Traits\Toast;
 use Livewire\WithPagination;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 new class extends Component {
     use WithPagination;
@@ -53,7 +54,7 @@ new class extends Component {
      * On real projects you do it with Eloquent collections.
      * Please, refer to maryUI docs to see the eloquent examples.
      */
-    public function users(): \Illuminate\Pagination\LengthAwarePaginator
+    public function users(): LengthAwarePaginator
     {
 
         return User::query()
@@ -73,6 +74,11 @@ new class extends Component {
         }
     }
 
+    public function countFilters(): ?int
+    {
+        $count = collect([$this->search, $this->country_id])->filter()->count();
+        return $count > 0 ? $count : null;    }
+
     public function with(): array
     {
         return [
@@ -90,7 +96,7 @@ new class extends Component {
             <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass"/>
         </x-slot:middle>
         <x-slot:actions>
-            <x-button label="Filters" @click="$wire.drawer = true" responsive icon="o-funnel"/>
+            <x-button label="Filters" @click="$wire.drawer = true" responsive icon="o-funnel" :badge="$this->countFilters()"/>
         </x-slot:actions>
     </x-header>
 
@@ -107,9 +113,9 @@ new class extends Component {
     <!-- FILTER DRAWER -->
     <x-drawer wire:model="drawer" title="Filters" right separator with-close-button class="lg:w-1/3">
         <x-input placeholder="Search..." wire:model.live.debounce="search" icon="o-magnifying-glass"
-                 @keydown.enter="$wire.drawer = false"/>        <x-select placeholder="Country" wire:model.live="country_id" :options="$countries" icon="o-flag" placeholder-value="0" />
-        <x-select placeholder="Country" wire:model.live="country_id" :options="$countries" icon="o-flag" placeholder-value="0" />
-
+                 @keydown.enter="$wire.drawer = false"/>
+        <x-select placeholder="Country" wire:model.live="country_id" :options="$countries" icon="o-flag"
+                  placeholder-value="0"/>
 
         <x-slot:actions>
             <x-button label="Reset" icon="o-x-mark" wire:click="clear" spinner/>
