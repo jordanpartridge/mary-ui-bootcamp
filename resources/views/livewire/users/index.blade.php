@@ -5,9 +5,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Livewire\Volt\Component;
 use Mary\Traits\Toast;
+use Livewire\WithPagination;
 
 new class extends Component {
+    use WithPagination;
     use Toast;
+
 
     public string $search = '';
 
@@ -19,6 +22,7 @@ new class extends Component {
     public function clear(): void
     {
         $this->reset();
+        $this->resetPage();
         $this->success('Filters cleared.', position: 'toast-bottom');
     }
 
@@ -45,7 +49,7 @@ new class extends Component {
      * On real projects you do it with Eloquent collections.
      * Please, refer to maryUI docs to see the eloquent examples.
      */
-    public function users(): Collection
+    public function users(): \Illuminate\Pagination\LengthAwarePaginator
     {
 
         return User::query()
@@ -53,7 +57,15 @@ new class extends Component {
             ->with(['country'])
             ->when($this->search, fn(Builder $q) => $q->where('name', 'like', "%$this->search%"))
             ->orderBy(...array_values($this->sortBy))
-            ->get();
+            ->paginate(5);
+    }
+
+    // Reset pagination when any component property changes
+    public function updated($property): void
+    {
+        if (! is_array($property) && $property != "") {
+            $this->resetPage();
+        }
     }
 
     public function with(): array
@@ -78,7 +90,7 @@ new class extends Component {
 
     <!-- TABLE  -->
     <x-card>
-        <x-table :headers="$headers" :rows="$users" :sort-by="$sortBy">
+        <x-table :headers="$headers" :rows="$users" :sort-by="$sortBy" with-pagination>
             @scope('actions', $user)
             <x-button icon="o-trash" wire:click="delete({{ $user['id'] }})" wire:confirm="Are you sure?" spinner
                       class="btn-ghost btn-sm text-red-500"/>
