@@ -34,7 +34,7 @@ new class extends Component {
     public function delete(User $user): void
     {
         $user->delete();
-        $this->warning("$user->name deleted", 'Good bye!', position: 'toast-bottom');
+        $this->warning("$user->name has left the application", 'Good bye!', position: 'toast-bottom');
     }
 
     // Table headers
@@ -44,7 +44,7 @@ new class extends Component {
             ['key' => 'id', 'label' => '#', 'class' => 'w-1'],
             ['key' => 'name', 'label' => 'Name', 'class' => 'w-64'],
             ['key' => 'country_name', 'label' => 'Country', 'class' => 'hidden lg:table-cell'],
-            ['key' => 'email', 'label' => 'E-mail', 'sortable' => false],
+            ['key' => 'email', 'label' => 'E-mail'],
         ];
     }
 
@@ -91,7 +91,7 @@ new class extends Component {
 
 <div>
     <!-- HEADER -->
-    <x-header title="Hello" separator progress-indicator>
+    <x-header title="Users" separator progress-indicator>
         <x-slot:middle class="!justify-end">
             <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass"/>
         </x-slot:middle>
